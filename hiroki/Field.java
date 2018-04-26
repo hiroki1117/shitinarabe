@@ -1,16 +1,18 @@
 package hiroki;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import hiroki.cards.Card;
 
 public class Field {
 	private boolean[][] field = new boolean[4][13];
 	private List<Player> players = new ArrayList<>();
-	private Map<Integer, String> rank = new HashMap<>();
+	//private Map<Integer, String> rank = new HashMap<>();
+	private List<Player> winner = new ArrayList<>(3);
+	private List<Player> loser = new ArrayList<>(3);
+
 
 	private Integer index = null;
 
@@ -34,13 +36,13 @@ public class Field {
 	}
 
 	public boolean beFinish(){
-		int winner = 0;
+		int finished = 0;
 
 		for(Player p : players){
-			if(!p.isActive) winner ++;
+			if(!p.isActive) finished ++;
 		}
 
-		return winner >= 3;
+		return finished >= 3;
 	}
 
 	public boolean tryPutCard(Card card){
@@ -74,17 +76,30 @@ public class Field {
 		}
 	}
 
+
+	//用改善が必要
 	public int calcuIndex(){
+		/*
 		if(index == null){
 			for(int i=0; i<4; i++){
 				if(players.get(i).haveDiaSeven()) index = i;
 			}
 			return index;
 		}
+		*/
 
+		int result = index;
+		index = (index + 1) %4;
+		while(!players.get(index).getIsActive()) {
+			index = (index + 1) %4;
+		}
+
+		return result;
+		/*
 		index = (index + 1) % 4;
 		if(players.get(index).getIsActive()) return index;
 		else return calcuIndex();
+		*/
 	}
 
 	public void display(){
@@ -94,7 +109,8 @@ public class Field {
 	}
 
 	private void displayCom(){
-		System.out.print("     ");
+		System.out.println("\n\n\n");
+		System.out.print("    ");
 
 		int i = 0;
 		for(; i<4; i++){
@@ -106,12 +122,21 @@ public class Field {
 
 		for(int j=0; j < 3; j++){
 			Player p = players.get(i%4);
+
+			if(!p.getIsActive()) {
+				System.out.print("FINISH!!    ");
+				i++;
+				continue;
+			}
+
 			String output = p.getName() + " 手札:" + p.getTehudaSize() + " パス:" + p.getPass();
 
-			if(index != null && index == (i - 1)){
+			if(index != null && index == (i )){
 				String red = "\u001b[31m";
 				String reset = "\u001b[0m";
-				output = red + output + reset;
+				//output = red + output + reset;
+
+				output = "(*) " + output;
 			}
 
 			System.out.print(output);
@@ -127,6 +152,13 @@ public class Field {
 		for(Player p : players){
 			if(p instanceof Human) h = (Human)p;
 		}
+
+		if(h.getIsActive()) {
+			System.out.println(h.getName() + " 手札:" + h.getTehudaSize() + " パス:" + h.getPass());
+		}else {
+			System.out.println("FINISH!!");
+		}
+		//プレイヤーの手札表示
 		h.showTehud();
 		System.out.println();
 	}
@@ -185,8 +217,48 @@ public class Field {
 		System.out.println();
 	}
 
+	public void displayResult() {
+		List<Player> rank = new ArrayList<>(4);
+
+		//最後まで残ったプレイヤーはwinnerListに入れる
+		for(Player p : players) {
+			if(p.isActive) {
+				winner.add(p);
+			}
+		}
+
+
+		for(Player p : winner) {
+			rank.add(p);
+		}
+
+
+		Collections.reverse(loser);
+		for(Player p : loser) {
+			rank.add(p);
+		}
+
+		System.out.println("勝敗は....");
+		int i = 1;
+		for(Player p : rank) {
+			System.out.println(i + "位" + p.getName());
+			i++;
+		}
+	}
+
+	public void addWinner(Player p) {
+		winner.add(p);
+	}
+
+	public void addLoser(Player p ) {
+		loser.add(p);
+	}
+
 	public List<Player> getPlayers(){ return players;}
 
 	public boolean[][] getField(){return field;}
 
+	public void setIndex(int i) {
+		index = i;
+	}
 }

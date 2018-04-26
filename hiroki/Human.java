@@ -16,7 +16,7 @@ public class Human extends Player {
     public Action play() {
         String red = "\u001b[31m";
         String reset = "\u001b[0m";
-        System.out.println(red + "カードの番号かpassを入力してください" + reset);
+        System.out.println("カードの番号かpassを入力してください");
         System.out.print("->");
 
         Scanner sc = new Scanner(System.in);

@@ -9,6 +9,7 @@ public class Computer extends Player{
 
     private boolean[][] field;
     private ShitinarabeStrategy strategy;
+    private String mode = "N";
 
     public Computer(String name, ShitinarabeStrategy strategy){
         super(name);
@@ -22,13 +23,33 @@ public class Computer extends Player{
     @Override
     public Action play() {
 
-        try {
+    	switch(mode) {
+    	case "N":
+    		modeNormal();
+    		break;
+    	case "Q":
+    		break;
+    	default:
+    		modeNormal();
+    	}
+
+
+        return strategy.decide(this, field);
+    }
+
+    private void modeNormal() {
+    	try {
             Thread.sleep(2000);
         }catch (InterruptedException e){
             e.printStackTrace();
         }
+    }
 
-        return strategy.decide(this, field);
+    private void modeEnter() {
+    }
+
+    public void setMode(String mode) {
+    	this.mode = mode;
     }
 
 
